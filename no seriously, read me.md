@@ -1,5 +1,7 @@
 https://github.com/nebakanezzer/Marlin/tree/Tevo.Tarantula.OG.SKR1.4T
 
+**I take no responsibility for anyone flashing this firmware, do so at your own risk. if your printer summons cthulu, that is on you :) **
+
 this build is for the Original Tevo Tarantula (not pro) with a very specific hardware configuration. it will not work with your printer unless it also has the same modifications.
 
 this build is for:
