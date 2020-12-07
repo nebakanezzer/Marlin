@@ -16,7 +16,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #pragma once
@@ -29,15 +29,12 @@
  *
  * The DLCache can be used like so:
  *
- *   void some_function() {
- *     DLCache dlcache(UNIQUE_ID);
+ *   DLCache dlcache(UNIQUE_ID);
  *
- *     if (dlcache.hasData()) {
- *       dlcache.append();
- *     } else {
- *       // Add stuff to the DL
- *       dlcache.store();
- *     }
+ *   if (dlcache.hasData())
+ *     dlcache.append();
+ *   else
+ *     dlcache.store(); // Add stuff to the DL
  */
 class DLCache {
   private:
@@ -51,7 +48,7 @@ class DLCache {
 
     void load_slot() {load_slot(dl_slot_indx, dl_slot_addr, dl_slot_size, dl_slot_used);}
     void save_slot() {save_slot(dl_slot_indx, dl_slot_addr, dl_slot_size, dl_slot_used);}
-    
+
     static void load_slot(uint8_t indx, uint32_t &addr, uint16_t &size, uint16_t &used);
     static void save_slot(uint8_t indx, uint32_t  addr, uint16_t  size, uint16_t  used);
 
