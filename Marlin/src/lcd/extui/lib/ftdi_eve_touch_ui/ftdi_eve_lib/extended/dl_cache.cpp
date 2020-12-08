@@ -17,7 +17,7 @@
  *   GNU General Public License for more details.                           *
  *                                                                          *
  *   To view a copy of the GNU General Public License, go to the following  *
- *   location: <https://www.gnu.org/licenses/>.                              *
+ *   location: <https://www.gnu.org/licenses/>.                             *
  ****************************************************************************/
 
 #include "ftdi_extended.h"
@@ -65,9 +65,8 @@ using namespace FTDI;
 
 void DLCache::init() {
   CLCD::mem_write_32(DL_FREE_ADDR, DL_FREE_ADDR + 4);
-  for(uint8_t slot = 0; slot < DL_CACHE_SLOTS; slot++) {
-    save_slot(slot, 0, 0);
-  }
+  for (uint8_t slot = 0; slot < DL_CACHE_SLOTS; slot++)
+    save_slot(slot, 0, 0, 0);
 }
 
 bool DLCache::has_data() {
@@ -113,16 +112,18 @@ bool DLCache::store(uint32_t num_bytes /* = 0*/) {
 
   if (dl_addr == 0) {
     // If we are allocating new space...
-    dl_addr     = CLCD::mem_read_32(DL_FREE_ADDR);
-    free_space  = MAP::RAM_G_SIZE - dl_addr;
-    dl_alloc    = num_bytes ?: new_dl_size;
-    dl_size     = new_dl_size;
-  } else {
-    // Otherwise, we can only store as much space
-    // as was previously allocated.
-    free_space  = num_bytes ?: dl_size;
-    dl_alloc    = 0;
-    dl_size     = new_dl_size;
+    dl_slot_addr = CLCD::mem_read_32(DL_FREE_ADDR);
+    dl_slot_size = max(dl_size, min_bytes);
+
+    const uint32_t free_space = MAP::RAM_G_SIZE - dl_slot_addr;
+    if (dl_slot_size <= free_space) {
+      CLCD::mem_write_32(DL_FREE_ADDR, dl_slot_addr + dl_slot_size);
+    }
+    else {
+      dl_slot_addr = 0;
+      dl_slot_size = 0;
+      dl_slot_used = 0;
+    }
   }
 
   if (dl_size > free_space) {
@@ -133,7 +134,8 @@ bool DLCache::store(uint32_t num_bytes /* = 0*/) {
       SERIAL_ECHOLNPAIR(" Required: ", dl_size);
     #endif
     return false;
-  } else {
+  }
+  else {
     #if ENABLED(TOUCH_UI_DEBUG)
       SERIAL_ECHO_START();
       SERIAL_ECHOPAIR  ("Saving DL to RAMG cache, bytes: ", dl_size);
